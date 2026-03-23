@@ -1,0 +1,40 @@
+﻿@model IEnumerable<LexicoAnalyzer.Web.Models.ReservedWord>
+
+@{
+    ViewData["Title"] = "Palabras Reservadas";
+}
+
+<h2>Palabras Reservadas</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nueva Palabra Reservada</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Palabra</th>
+            <th>Activo</th>
+            <th style="width:150px;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Word</td>
+                <td>@(item.IsActive ? "Sí" : "No")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

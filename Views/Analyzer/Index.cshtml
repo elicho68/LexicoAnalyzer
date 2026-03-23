@@ -1,0 +1,107 @@
+﻿@model LexicoAnalyzer.Web.Models.AnalyzerViewModel
+
+@{
+    ViewData["Title"] = "Analizador Léxico";
+}
+
+<h2>Analizador Léxico</h2>
+
+<form asp-action="Index" method="post">
+    <div class="mb-3">
+        <label asp-for="InputText" class="form-label"></label>
+        <textarea asp-for="InputText" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="InputText" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Analizar</button>
+</form>
+
+
+
+@if (Model.Result != null)
+{
+   
+
+    <h4>Vista Coloreada de Tokens</h4>
+    <div class="token-preview p-3 mb-3 border rounded bg-light">
+        @foreach (var token in Model.Result.Tokens)
+        {
+            var cssClass = token.Type switch
+            {
+                LexicoAnalyzer.Web.Models.TokenType.ReservedWord => "token-reserved",
+                LexicoAnalyzer.Web.Models.TokenType.Identifier => "token-identifier",
+                LexicoAnalyzer.Web.Models.TokenType.Number => "token-number",
+                LexicoAnalyzer.Web.Models.TokenType.Operator => "token-operator",
+                LexicoAnalyzer.Web.Models.TokenType.Delimiter => "token-delimiter",
+                LexicoAnalyzer.Web.Models.TokenType.Invalid => "token-invalid",
+                _ => ""
+            };
+
+            <span class="@cssClass me-1">@token.Lexeme</span>
+        }
+    </div>
+
+    <hr />
+
+    <h4>Resumen</h4>
+    <p><strong>Cadena válida:</strong> @(Model.Result.IsValid ? "Sí" : "No")</p>
+    <p><strong>Total de tokens:</strong> @Model.Result.TotalTokens</p>
+    <p><strong>Tokens válidos:</strong> @Model.Result.ValidTokens</p>
+    <p><strong>Tokens inválidos:</strong> @Model.Result.InvalidTokens</p>
+
+    <h4>Tabla de Tokens</h4>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Lexema</th>
+                <th>Tipo</th>
+                <th>Posición</th>
+                <th>Válido</th>
+                <th>Error</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var token in Model.Result.Tokens)
+            {
+                <tr>
+                    <td>@token.Order</td>
+                    <td>@token.Lexeme</td>
+                    <td>@token.Type</td>
+                    <td>@token.Position</td>
+                    <td>@(token.IsValid ? "Sí" : "No")</td>
+                    <td>@token.ErrorMessage</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.Result.Errors.Any())
+    {
+        <h4>Errores Léxicos</h4>
+        <table class="table table-bordered table-danger">
+            <thead>
+                <tr>
+                    <th>Lexema</th>
+                    <th>Posición</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var error in Model.Result.Errors)
+                {
+                    <tr>
+                        <td>@error.Lexeme</td>
+                        <td>@error.Position</td>
+                        <td>@error.Message</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
